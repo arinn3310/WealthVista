@@ -1,0 +1,245 @@
+/* Custom styles for the financial dashboard */
+
+/* Card hover effects */
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 0.5rem;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Price change indicators */
+.price-positive {
+    color: #28a745 !important;
+}
+
+.price-negative {
+    color: #dc3545 !important;
+}
+
+.price-neutral {
+    color: #6c757d !important;
+}
+
+/* Loading skeleton animation */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Dark mode skeleton */
+[data-bs-theme="dark"] .skeleton {
+    background: linear-gradient(90deg, #2d3748 25%, #1a202c 50%, #2d3748 75%);
+    background-size: 200% 100%;
+}
+
+/* Refresh animation */
+.refresh-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Status indicators */
+.status-online {
+    color: #28a745;
+}
+
+.status-offline {
+    color: #dc3545;
+}
+
+.status-warning {
+    color: #ffc107;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #6c757d #f8f9fa;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #6c757d;
+    border-radius: 3px;
+}
+
+[data-bs-theme="dark"] .custom-scrollbar::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+[data-bs-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4a5568;
+}
+
+/* News item styling */
+.news-item {
+    border-left: 3px solid var(--bs-primary);
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.news-item:hover {
+    background-color: var(--bs-light);
+    border-radius: 0.25rem;
+}
+
+[data-bs-theme="dark"] .news-item:hover {
+    background-color: var(--bs-dark);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1rem;
+    }
+    
+    .card h4 {
+        font-size: 1.2rem;
+    }
+}
+
+/* PWA specific styles */
+@media (display-mode: standalone) {
+    .navbar {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* Chart container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+/* Currency converter result */
+.conversion-result {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Data table styling */
+.data-table {
+    font-size: 0.9rem;
+}
+
+.data-table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: var(--bs-light);
+}
+
+[data-bs-theme="dark"] .data-table th {
+    background-color: var(--bs-dark);
+}
+
+/* Price badges */
+.price-badge {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.price-badge.positive {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.price-badge.negative {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+/* Footer styling */
+footer {
+    margin-top: auto;
+}
+
+/* Utility classes */
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Error state styling */
+.error-state {
+    color: var(--bs-danger);
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Success state styling */
+.success-state {
+    color: var(--bs-success);
+    text-align: center;
+    padding: 1rem;
+}
