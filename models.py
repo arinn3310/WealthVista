@@ -1,52 +1,58 @@
-from dataclasses import dataclass
-from typing import Dict, List, Optional
 from datetime import datetime
+from db import db
 
-@dataclass
-class CurrencyRate:
-    symbol: str
-    rate: float
-    change_percent: float
-    last_updated: datetime
+class CurrencyRate(db.Model):
+    __tablename__ = 'currency_rates'
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(10), nullable=False)
+    rate = db.Column(db.Float, nullable=False)
+    change_percent = db.Column(db.Float, nullable=False)
+    last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-@dataclass
-class StockIndex:
-    name: str
-    symbol: str
-    value: float
-    change: float
-    change_percent: float
-    last_updated: datetime
+class StockIndex(db.Model):
+    __tablename__ = 'stock_indices'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    symbol = db.Column(db.String(10), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    change = db.Column(db.Float, nullable=False)
+    change_percent = db.Column(db.Float, nullable=False)
+    last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-@dataclass
-class CommodityPrice:
-    name: str
-    symbol: str
-    price: float
-    change_percent: float
-    unit: str
-    last_updated: datetime
+class CommodityPrice(db.Model):
+    __tablename__ = 'commodity_prices'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    symbol = db.Column(db.String(10), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    change_percent = db.Column(db.Float, nullable=False)
+    unit = db.Column(db.String(20), nullable=False)
+    last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-@dataclass
-class CryptoPrice:
-    symbol: str
-    name: str
-    price_inr: float
-    change_percent: float
-    last_updated: datetime
+class CryptoPrice(db.Model):
+    __tablename__ = 'crypto_prices'
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(10), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    price_inr = db.Column(db.Float, nullable=False)
+    change_percent = db.Column(db.Float, nullable=False)
+    last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-@dataclass
-class NewsItem:
-    title: str
-    description: str
-    url: str
-    source: str
-    published_at: datetime
+class NewsItem(db.Model):
+    __tablename__ = 'news_items'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    url = db.Column(db.String(255), nullable=False)
+    source = db.Column(db.String(100), nullable=False)
+    published_at = db.Column(db.DateTime, nullable=False)
 
-@dataclass
-class StockData:
-    symbol: str
-    name: str
-    price: float
-    change: float
-    change_percent: float
+class StockData(db.Model):
+    __tablename__ = 'stock_data'
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(10), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    change = db.Column(db.Float, nullable=False)
+    change_percent = db.Column(db.Float, nullable=False)
+    last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

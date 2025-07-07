@@ -10,18 +10,25 @@ IST = pytz.timezone('Asia/Kolkata')
 
 class DataFetcher:
     def __init__(self):
-        self.alpha_vantage_key = os.getenv("ALPHA_VANTAGE_API_KEY", "demo")
-        self.news_api_key = os.getenv("NEWS_API_KEY", "demo")
+        self.alpha_vantage_key = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+        self.news_api_key = os.getenv("NEWS_API_KEY", "")
+        self.metals_api_key = os.getenv("METALS_API_KEY", "")
+        self.coinmarketcap_api_key = os.getenv("COINMARKETCAP_API_KEY", "")
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
+        if not self.news_api_key:
+            logging.warning("NEWS_API_KEY is missing. Financial news may be unavailable.")
 
     def fetch_currency_rates(self) -> Dict[str, CurrencyRate]:
-        """Fetch USD to INR and other major currency rates"""
+        """Fetch USD to INR and other major currency rates using key-based API"""
         try:
-            # Using exchangerate-api.com (free tier)
-            url = "https://api.exchangerate-api.com/v4/latest/USD"
+            if not self.exchange_rate_api_key:
+                logging.warning("EXCHANGE_RATE_API_KEY is missing. Currency rates may be incomplete.")
+                return {}
+            
+            url = f"https://v6.exchangerate-api.com/v6/{self.exchange_rate_api_key}/latest/USD"
             response = self.session.get(url, timeout=10)
             response.raise_for_status()
             data = response.json()
@@ -29,30 +36,34 @@ class DataFetcher:
             current_time = datetime.now(IST)
             currencies = {}
             
-            # Get INR rate
-            if 'rates' in data and 'INR' in data['rates']:
-                inr_rate = data['rates']['INR']
-                currencies['USD-INR'] = CurrencyRate(
-                    symbol="USD-INR",
-                    rate=inr_rate,
-                    change_percent=0.0,  # API doesn't provide change
-                    last_updated=current_time
-                )
-            
-            # Get other major currencies to INR
-            major_currencies = ['EUR', 'GBP', 'AED', 'SGD', 'JPY']
-            for currency in major_currencies:
-                if currency in data['rates']:
-                    # Convert to INR rate
-                    rate_to_inr = data['rates']['INR'] / data['rates'][currency]
-                    currencies[f'{currency}-INR'] = CurrencyRate(
-                        symbol=f"{currency}-INR",
-                        rate=rate_to_inr,
+            if data.get('result') == 'success' and 'conversion_rates' in data:
+                rates = data['conversion_rates']
+                
+                # Get INR rate
+                if 'INR' in rates:
+                    inr_rate = rates['INR']
+                    currencies['USD-INR'] = CurrencyRate(
+                        symbol="USD-INR",
+                        rate=inr_rate,
                         change_percent=0.0,
                         last_updated=current_time
                     )
-            
-            return currencies
+                
+                # Get other major currencies to INR
+                major_currencies = ['EUR', 'GBP', 'AED', 'SGD', 'JPY']
+                for currency in major_currencies:
+                    if currency in rates:
+                        rate_to_inr = rates['INR'] / rates[currency]
+                        currencies[f'{currency}-INR'] = CurrencyRate(
+                            symbol=f"{currency}-INR",
+                            rate=rate_to_inr,
+                            change_percent=0.0,
+                            last_updated=current_time
+                        )
+                return currencies
+            else:
+                logging.error(f"Error fetching currency rates: API response unsuccessful: {data}")
+                return {}
             
         except Exception as e:
             logging.error(f"Error fetching currency rates: {e}")
@@ -115,68 +126,72 @@ class DataFetcher:
             current_time = datetime.now(IST)
             
             # Using metals-api.com for gold and silver (free tier)
-            try:
-                url = "https://api.metals.live/v1/spot"
-                response = self.session.get(url, timeout=10)
-                response.raise_for_status()
-                data = response.json()
-                
-                if isinstance(data, list) and len(data) > 0:
-                    for item in data:
-                        if item.get('metal') == 'gold':
-                            # Convert to INR per gram (price is usually in USD per troy ounce)
-                            gold_usd_per_oz = item.get('price', 0)
-                            # Get USD-INR rate for conversion
-                            usd_inr_rate = 83.0  # Fallback rate
-                            gold_inr_per_gram = (gold_usd_per_oz * usd_inr_rate) / 31.1035
-                            
-                            commodities['GOLD'] = CommodityPrice(
-                                name="Gold",
-                                symbol="GOLD",
-                                price=gold_inr_per_gram,
-                                change_percent=0.0,
-                                unit="INR/gram",
-                                last_updated=current_time
-                            )
-                        elif item.get('metal') == 'silver':
-                            silver_usd_per_oz = item.get('price', 0)
-                            usd_inr_rate = 83.0
-                            silver_inr_per_gram = (silver_usd_per_oz * usd_inr_rate) / 31.1035
-                            
-                            commodities['SILVER'] = CommodityPrice(
-                                name="Silver",
-                                symbol="SILVER",
-                                price=silver_inr_per_gram,
-                                change_percent=0.0,
-                                unit="INR/gram",
-                                last_updated=current_time
-                            )
-            except Exception as e:
-                logging.error(f"Error fetching metals prices: {e}")
+            if not self.metals_api_key:
+                logging.warning("METALS_API_KEY is missing. Commodity prices may be incomplete.")
+            else:
+                try:
+                    url = "https://api.metals.live/v1/spot"
+                    response = self.session.get(url, timeout=10)
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    if isinstance(data, list) and len(data) > 0:
+                        for item in data:
+                            if item.get('metal') == 'gold':
+                                gold_usd_per_oz = item.get('price', 0)
+                                usd_inr_rate = 83.0
+                                gold_inr_per_gram = (gold_usd_per_oz * usd_inr_rate) / 31.1035
+                                
+                                commodities['GOLD'] = CommodityPrice(
+                                    name="Gold",
+                                    symbol="GOLD",
+                                    price=gold_inr_per_gram,
+                                    change_percent=0.0,
+                                    unit="INR/gram",
+                                    last_updated=current_time
+                                )
+                            elif item.get('metal') == 'silver':
+                                silver_usd_per_oz = item.get('price', 0)
+                                usd_inr_rate = 83.0
+                                silver_inr_per_gram = (silver_usd_per_oz * usd_inr_rate) / 31.1035
+                                
+                                commodities['SILVER'] = CommodityPrice(
+                                    name="Silver",
+                                    symbol="SILVER",
+                                    price=silver_inr_per_gram,
+                                    change_percent=0.0,
+                                    unit="INR/gram",
+                                    last_updated=current_time
+                                )
+                except Exception as e:
+                    logging.error(f"Error fetching metals prices: {e}")
             
             # Crude oil price from Alpha Vantage
-            try:
-                url = f"https://www.alphavantage.co/query?function=WTI&interval=daily&apikey={self.alpha_vantage_key}"
-                response = self.session.get(url, timeout=10)
-                response.raise_for_status()
-                data = response.json()
-                
-                if 'data' in data and len(data['data']) > 0:
-                    latest_oil = data['data'][0]
-                    oil_usd = float(latest_oil.get('value', 0))
-                    usd_inr_rate = 83.0
-                    oil_inr = oil_usd * usd_inr_rate
+            if not self.alpha_vantage_key:
+                logging.warning("ALPHA_VANTAGE_API_KEY is missing. Crude oil price may be unavailable.")
+            else:
+                try:
+                    url = f"https://www.alphavantage.co/query?function=WTI&interval=daily&apikey={self.alpha_vantage_key}"
+                    response = self.session.get(url, timeout=10)
+                    response.raise_for_status()
+                    data = response.json()
                     
-                    commodities['CRUDE_OIL'] = CommodityPrice(
-                        name="Crude Oil",
-                        symbol="CRUDE_OIL",
-                        price=oil_inr,
-                        change_percent=0.0,
-                        unit="INR/barrel",
-                        last_updated=current_time
-                    )
-            except Exception as e:
-                logging.error(f"Error fetching crude oil price: {e}")
+                    if 'data' in data and len(data['data']) > 0:
+                        latest_oil = data['data'][0]
+                        oil_usd = float(latest_oil.get('value', 0))
+                        usd_inr_rate = 83.0
+                        oil_inr = oil_usd * usd_inr_rate
+                        
+                        commodities['CRUDE_OIL'] = CommodityPrice(
+                            name="Crude Oil",
+                            symbol="CRUDE_OIL",
+                            price=oil_inr,
+                            change_percent=0.0,
+                            unit="INR/barrel",
+                            last_updated=current_time
+                        )
+                except Exception as e:
+                    logging.error(f"Error fetching crude oil price: {e}")
             
             return commodities
             

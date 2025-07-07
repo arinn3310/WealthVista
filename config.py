@@ -13,3 +13,7 @@ class Config:
     
     # Scheduler configuration
     SCHEDULER_API_ENABLED = True
+
+    # Database configuration
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///wealth_vista.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

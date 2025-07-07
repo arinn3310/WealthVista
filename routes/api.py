@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
-from app import cache
 from services.data_fetcher import DataFetcher
 import logging
 
 api_bp = Blueprint('api', __name__)
+cache = None
 
 @api_bp.route('/currency-rates')
 def get_currency_rates():
@@ -133,8 +133,8 @@ def get_gainers_losers():
 def convert_currency():
     """Convert currency using current rates"""
     try:
-        from_currency = request.args.get('from', 'USD')
-        to_currency = request.args.get('to', 'INR')
+        from_currency = request.args.get('from', 'USD').upper()
+        to_currency = request.args.get('to', 'INR').upper()
         amount = float(request.args.get('amount', 1))
         
         rates = cache.get('currency_rates') or {}
@@ -154,11 +154,40 @@ def convert_currency():
                 }
             })
         else:
+            # Try reverse conversion if available
+            reverse_key = f"{to_currency}-{from_currency}"
+            if reverse_key in rates:
+                rate = rates[reverse_key].rate
+                if rate != 0:
+                    converted_amount = amount / rate
+                    return jsonify({
+                        'success': True,
+                        'data': {
+                            'from_currency': from_currency,
+                            'to_currency': to_currency,
+                            'amount': amount,
+                            'converted_amount': converted_amount,
+                            'rate': 1 / rate
+                        }
+                    })
             return jsonify({
                 'success': False,
-                'error': f"Conversion rate not available for {conversion_key}"
+                'error': f"Conversion rate not available for {conversion_key} or {reverse_key}"
             }), 400
-            
+
+        # Fallback: if no conversion rate found, try to use 1:1 conversion for same currency
+        if from_currency == to_currency:
+            return jsonify({
+                'success': True,
+                'data': {
+                    'from_currency': from_currency,
+                    'to_currency': to_currency,
+                    'amount': amount,
+                    'converted_amount': amount,
+                    'rate': 1.0
+                }
+            })
+
     except Exception as e:
         logging.error(f"Error converting currency: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500

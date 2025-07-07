@@ -1,0 +1,7 @@
+Flask
+Flask-Caching
+requests
+yfinance
+pandas
+SQLAlchemy
+Flask-SQLAlchemy

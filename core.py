@@ -24,6 +24,13 @@ cache = Cache(app)
 # Configure timezone
 IST = pytz.timezone('Asia/Kolkata')
 
+# Import and initialize database
+from config import Config
+app.config.from_object(Config)
+
+from db import init_db
+init_db(app)
+
 # Import routes
 from routes.main import main_bp
 from routes.api import api_bp
