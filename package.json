@@ -1,0 +1,12 @@
+{
+  "name": "wealth-vista-backend",
+  "version": "1.0.0",
+  "description": "Python Flask backend for Wealth Vista financial dashboard",
+  "scripts": {
+    "build": "echo 'No build process needed for Python backend'",
+    "start": "echo 'Use Python to start the Flask application'"
+  },
+  "keywords": ["flask", "python", "financial", "dashboard"],
+  "author": "",
+  "license": "ISC"
+}
