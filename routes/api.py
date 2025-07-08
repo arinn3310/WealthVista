@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 from services.data_fetcher import DataFetcher
 import logging
+from core import cache
 
 api_bp = Blueprint('api', __name__)
-cache = None
 
 @api_bp.route('/currency-rates')
 def get_currency_rates():
@@ -170,23 +170,24 @@ def convert_currency():
                             'rate': 1 / rate
                         }
                     })
+            
+            # Fallback: if no conversion rate found, try to use 1:1 conversion for same currency
+            if from_currency == to_currency:
+            return jsonify({
+                    'success': True,
+                    'data': {
+                        'from_currency': from_currency,
+                        'to_currency': to_currency,
+                        'amount': amount,
+                        'converted_amount': amount,
+                        'rate': 1.0
+                    }
+                })
+            
             return jsonify({
                 'success': False,
                 'error': f"Conversion rate not available for {conversion_key} or {reverse_key}"
             }), 400
-
-        # Fallback: if no conversion rate found, try to use 1:1 conversion for same currency
-        if from_currency == to_currency:
-            return jsonify({
-                'success': True,
-                'data': {
-                    'from_currency': from_currency,
-                    'to_currency': to_currency,
-                    'amount': amount,
-                    'converted_amount': amount,
-                    'rate': 1.0
-                }
-            })
 
     except Exception as e:
         logging.error(f"Error converting currency: {e}")

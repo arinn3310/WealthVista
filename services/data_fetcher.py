@@ -14,6 +14,7 @@ class DataFetcher:
         self.news_api_key = os.getenv("NEWS_API_KEY", "")
         self.metals_api_key = os.getenv("METALS_API_KEY", "")
         self.coinmarketcap_api_key = os.getenv("COINMARKETCAP_API_KEY", "")
+        self.exchange_rate_api_key = os.getenv("EXCHANGE_RATE_API_KEY", "")
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'

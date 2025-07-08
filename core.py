@@ -38,6 +38,10 @@ from routes.api import api_bp
 app.register_blueprint(main_bp)
 app.register_blueprint(api_bp, url_prefix='/api')
 
+# Make cache available to api routes
+import routes.api
+routes.api.cache = cache
+
 # Initialize scheduler
 scheduler = BackgroundScheduler()
 scheduler.start()

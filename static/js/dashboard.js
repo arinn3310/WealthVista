@@ -366,6 +366,7 @@ class FinancialDashboard {
                 `;
             } else {
                 document.getElementById('conversionResult').classList.add('d-none');
+                console.error('Currency conversion failed:', data.error);
             }
         } catch (error) {
             console.error('Error converting currency:', error);

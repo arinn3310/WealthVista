@@ -6,6 +6,9 @@ class Config:
     # API Keys
     ALPHA_VANTAGE_API_KEY = os.environ.get('ALPHA_VANTAGE_API_KEY', 'demo')
     NEWS_API_KEY = os.environ.get('NEWS_API_KEY', 'demo')
+    EXCHANGE_RATE_API_KEY = os.environ.get('EXCHANGE_RATE_API_KEY', '')
+    METALS_API_KEY = os.environ.get('METALS_API_KEY', '')
+    COINMARKETCAP_API_KEY = os.environ.get('COINMARKETCAP_API_KEY', '')
     
     # Cache configuration
     CACHE_TYPE = 'simple'
