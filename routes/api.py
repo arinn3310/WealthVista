@@ -173,7 +173,7 @@ def convert_currency():
             
             # Fallback: if no conversion rate found, try to use 1:1 conversion for same currency
             if from_currency == to_currency:
-            return jsonify({
+                return jsonify({
                     'success': True,
                     'data': {
                         'from_currency': from_currency,
